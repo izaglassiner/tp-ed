@@ -21,7 +21,7 @@ Partida* partida_criar(int id, int id_t1, int id_t2, int g1, int g2)
 }
 
 // Função para remover uma partida
-void partida_destruir(Partida* p)
+void partida_free(Partida* p)
 {
     if (p != NULL){
         free(p);

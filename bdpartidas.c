@@ -7,7 +7,7 @@
 // Função para criar partida
 BDPartidas* bdpartidas_criar()
 {
-    BDPartidas* bd_p = (BDPartidas*) malloc(sizeof(BDPartidas));
+    BDPartidas* bd_p = (BDPartidas*)malloc(sizeof(BDPartidas));
     if (bd_p == NULL) {
         printf("Erro ao alocar memória para o banco de partidas.\n");
         return NULL;
@@ -21,7 +21,7 @@ BDPartidas* bdpartidas_criar()
 }
 
 // Função para remover partida
-void bdpartidas_destruir(BDPartidas* bd_p)
+void bdpartidas_free(BDPartidas* bd_p)
 {
     if (bd_p == NULL){
         return;
@@ -29,7 +29,7 @@ void bdpartidas_destruir(BDPartidas* bd_p)
     // Liberando cada partida individualmente
     for (int i = 0; i < bd_p->quantidade; i++) {
         if (bd_p->partidas[i] != NULL) {
-            partida_destruir(bd_p->partidas[i]);
+            partida_free(bd_p->partidas[i]);
         }
     }
     // Liberando BDPartidas
@@ -78,23 +78,27 @@ void bdpartidas_listar_por_time(BDPartidas* bd_p, BDTimes* bd_t, int modo, char*
         Time* t2 = bdtimes_buscar_id(bd_t, partida_get_id_t2(p));
 
         if (!t1 || !t2) continue;
-
+        char format[40];
         char* n1 = time_nome(t1);
         char* n2 = time_nome(t2);
 
         // Verifica se os nomes começam com o prefixo
-        int m1 = (strncmp(n1, prefixo, tam) == 0);
-        int m2 = (strncmp(n2, prefixo, tam) == 0);
+        int m1 = (strncasecmp(n1, prefixo, tam) == 0);
+        int m2 = (strncasecmp(n2, prefixo, tam) == 0);
 
         if ((modo == 1 && m1) || (modo == 2 && m2) || (modo == 3 && (m1 || m2))) {
             if (!encontrou) {
-                printf("%-4s %-15s %s\n", "ID", "Time1", "Time2");
+            printf("\n%-4s %-17s %-12s %s\n", "ID", "Time1", "Placar", "Time2");
                 encontrou = 1;
             }
-            printf("%-4d %-15s %d x %d %s\n",
-                   partida_get_id(p), n1,
-                   partida_get_g1(p),
-                   partida_get_g2(p), n2);
+            sprintf(format, "%%-4d %%-%ds %%8d x %%-8d %%s\n", COLS + count_special(n1));
+
+            printf(format,
+                partida_get_id(p),
+                n1,
+                partida_get_g1(p),
+                partida_get_g2(p),
+                n2);
         }
     }
 

@@ -18,8 +18,8 @@ typedef struct{
 // Função para criar um time
 Time* time_criar(int id, char* nome);
 
-// Função para destruir um time
-void time_destruir(Time* t);
+// Função para free um time
+void time_free(Time* t);
 
 // Função que retorna o ID de um time
 int time_id(Time* t);

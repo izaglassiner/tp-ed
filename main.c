@@ -17,8 +17,9 @@ void menu_consultar_partidas(BDPartidas* bd_p, BDTimes* bd_t) {
     printf("\nEscolha o modo de consulta:\n");
     printf("1 - Por time mandante\n");
     printf("2 - Por time visitante\n");
-    printf("3 - Por time mandante ou visitante\n");
+    printf("3 - Por time mandante ou visitante\n"); 
     printf("4 - Retornar ao menu principal\n");
+    printf("Opção: ");
     scanf(" %d", &modo);
 
     if (modo == 4) {
@@ -31,7 +32,7 @@ void menu_consultar_partidas(BDPartidas* bd_p, BDTimes* bd_t) {
     }
 
     char prefixo[50];
-    printf("Digite o nome: ");
+    printf("\nDigite o nome: ");
     scanf(" %49s", prefixo);
     bdpartidas_listar_por_time(bd_p, bd_t, modo, prefixo);
 }
@@ -41,7 +42,7 @@ int main() {
     BDTimes* bd_t = bdtimes_criar();
     if (bdtimes_carregar_csv(bd_t, "times.csv") == 0) {
         printf("Erro ao carregar times.csv\n");
-        bdtimes_destruir(bd_t);
+        bdtimes_free(bd_t);
         return 1;
     }
 
@@ -49,8 +50,8 @@ int main() {
     BDPartidas* bd_p = bdpartidas_criar();
     if (bdpartidas_carregar_csv(bd_p, "bd_partidas.csv") == 0) {
         printf("Erro ao carregar bd_partidas.csv\n");
-        bdpartidas_destruir(bd_p);
-        bdtimes_destruir(bd_t);
+        bdpartidas_free(bd_p);
+        bdtimes_free(bd_t);
         return 1;
     }
 
@@ -60,13 +61,13 @@ int main() {
     // Loop do menu
     char opcao = ' ';
     while (opcao != 'Q' && opcao != 'q') {
-        printf("\nSistema de Gerenciamento de Partidas\n");
+        printf("\n-- Sistema de Gerenciamento de Partidas --\n");
         printf("1 - Consultar time\n");
         printf("2 - Consultar partidas\n");
         printf("3 - Atualizar partida (desabilitado)\n");
         printf("4 - Remover partida (desabilitado)\n");
         printf("5 - Inserir partida (desabilitado)\n");
-        printf("6 - Imprimir tabela de classificaçãoo\n");
+        printf("6 - Imprimir tabela de classificação\n");
         printf("Q - Sair\n");
         printf("Opção: ");
         scanf(" %c", &opcao);
@@ -86,8 +87,8 @@ int main() {
     printf("Encerrando o sistema.\n");
 
     // Liberando memória
-    bdpartidas_destruir(bd_p);
-    bdtimes_destruir(bd_t);
+    bdpartidas_free(bd_p);
+    bdtimes_free(bd_t);
 
     return 0;
 }

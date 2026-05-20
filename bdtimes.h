@@ -4,6 +4,8 @@
 #ifndef BDTIMES_H
 #define BDTIMES_H
 
+#define COLS 10
+
 // Definindo a estrutura de dados times
 typedef struct{
     Time* times[10];
@@ -11,12 +13,13 @@ typedef struct{
 } BDTimes;
 
 // Funções para a manipulação da esturura de dados BDTimes
+int count_special(const char* str);
 
 // Função para criar um BD Time
 BDTimes* bdtimes_criar();
 
 // Função para remover um BD Time
-void bdtimes_destruir(BDTimes* bd_t);
+void bdtimes_free(BDTimes* bd_t);
 
 // Função para leitura de um arquivo bd_time.csv
 int bdtimes_carregar_csv(BDTimes* bd_t, char* caminho);

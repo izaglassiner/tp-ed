@@ -18,7 +18,7 @@ typedef struct{
 BDPartidas* bdpartidas_criar();
 
 // Função para remover partida
-void bdpartidas_destruir(BDPartidas* bd_p);
+void bdpartidas_free(BDPartidas* bd_p);
 
 // Função para leitura de um arquivo bd_partidas.csv
 int bdpartidas_carregar_csv(BDPartidas* bd_p, char* caminho);
