@@ -20,7 +20,7 @@ BDPartidas* bdpartidas_criar()
     return bd_p;
 }
 
-// Função para remover partida
+// Função para "apagar" BDpartidas (libera a memória alocada)
 void bdpartidas_free(BDPartidas* bd_p)
 {
     if (bd_p == NULL){
@@ -39,18 +39,19 @@ void bdpartidas_free(BDPartidas* bd_p)
 // Função para leitura de um arquivo bd_partidas.csv
 int bdpartidas_carregar_csv(BDPartidas* bd_p, char* caminho)
 {
-    if (!bd_p || !caminho){
+    if (bd_p == NULL || caminho == NULL){
         return 0;
     }
-
+    // Abrindo o arquivo
     FILE* arquivo = fopen(caminho, "r");
-    if (!arquivo){
+    if (arquivo == NULL){
         return 0;
     }
 
     char cabecalho[100];
     fgets(cabecalho, sizeof(cabecalho), arquivo); // Pula o cabeçalho
 
+    // Inserindo cada partida do arquivo em bd_p
     int id, t1, t2, g1, g2;
     while (fscanf(arquivo, "%d,%d,%d,%d,%d", &id, &t1, &t2, &g1, &g2) == 5) {
         if (bd_p->quantidade < MAX_PARTIDAS) {
@@ -65,7 +66,7 @@ int bdpartidas_carregar_csv(BDPartidas* bd_p, char* caminho)
 // Função para listar partidas por time
 void bdpartidas_listar_por_time(BDPartidas* bd_p, BDTimes* bd_t, int modo, char* prefixo)
 {
-    if (!bd_p || !bd_t || !prefixo) {
+    if (bd_p == NULL || bd_t == NULL || prefixo == NULL) {
         return;
     }
 
@@ -74,11 +75,13 @@ void bdpartidas_listar_por_time(BDPartidas* bd_p, BDTimes* bd_t, int modo, char*
 
     for (int i = 0; i < bd_p->quantidade; i++) {
         Partida* p = bd_p->partidas[i];
+
         Time* t1 = bdtimes_buscar_id(bd_t, partida_get_id_t1(p));
         Time* t2 = bdtimes_buscar_id(bd_t, partida_get_id_t2(p));
 
-        if (!t1 || !t2) continue;
-        char format[40];
+        if (t1 == NULL || t2 == NULL) continue;
+
+        char format[40]; // variável para formatacao do output
         char* n1 = time_nome(t1);
         char* n2 = time_nome(t2);
 
@@ -87,6 +90,7 @@ void bdpartidas_listar_por_time(BDPartidas* bd_p, BDTimes* bd_t, int modo, char*
         int m2 = (strncasecmp(n2, prefixo, tam) == 0);
 
         if ((modo == 1 && m1) || (modo == 2 && m2) || (modo == 3 && (m1 || m2))) {
+            // saída formatada
             if (!encontrou) {
             printf("\n%-4s %-17s %-12s %s\n", "ID", "Time1", "Placar", "Time2");
                 encontrou = 1;
@@ -109,7 +113,7 @@ void bdpartidas_listar_por_time(BDPartidas* bd_p, BDTimes* bd_t, int modo, char*
 
 // Função para processar partidas e armazenar resultados
 void bdpartidas_processar_resultados(BDPartidas* bd_p, BDTimes* bd_t) {
-    if (!bd_p || !bd_t){
+    if (bd_p == NULL || bd_t == NULL){
         return;
     }
 

@@ -7,7 +7,7 @@ CFLAGS = -Wall
 # Arquivos fonte
 SRCS = main.c time.c bdtimes.c partida.c bdpartidas.c
 
-# Arquivos objeto
+# Arquivos objeto (troca .c por .o)
 OBJS = $(SRCS:.c=.o)
 
 # Nome do executável
