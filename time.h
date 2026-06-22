@@ -54,4 +54,7 @@ int time_pontos(Time* t);
 // Função para registrar resultado de um time
 void time_registrar_resultado(Time* t, int gols_feitos, int gols_tomados);
 
+// Função para resetar estatísticas de uma time
+void time_resetar_estatisticas(Time *t);
+
 #endif

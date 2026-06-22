@@ -39,6 +39,131 @@ void menu_consultar_partidas(BDPartidas* bd_p, BDTimes* bd_t) {
     bdpartidas_listar_por_time(bd_p, bd_t, modo, prefixo);
 }
 
+// Reprocessa as estatísticas dos times do zero e salva as partidas
+void sincronizar_dados(BDPartidas* bd_p, BDTimes* bd_t) {
+    bdtimes_resetar_todos(bd_t);
+    bdpartidas_processar_resultados(bd_p, bd_t);
+    bdpartidas_salvar_csv(bd_p, "bd_partidas.csv");
+}
+
+// Atualiza o placar de uma partida já existente
+void menu_atualizar_partida(BDPartidas* bd_p, BDTimes* bd_t) {
+    menu_consultar_partidas(bd_p, bd_t);
+
+    int id;
+    printf("\nDigite o ID do registro a ser atualizado: ");
+    scanf(" %d", &id);
+
+    Partida* p = bdpartidas_buscar_id(bd_p, id);
+    if (p == NULL) {
+        printf("Partida com ID %d não encontrada.\n", id);
+        return;
+    }
+
+    char texto_g1[10], texto_g2[10];
+    printf("\nDigite o novo valor para os campos Placar1 e Placar2\n");
+    printf("(para manter o valor atual de um campo, digite '-'):\n");
+    scanf(" %9s", texto_g1);
+    scanf(" %9s", texto_g2);
+
+    // "-" significa "manter o valor atual": usamos -1 como sentinela
+    int novo_g1 = (strcmp(texto_g1, "-") == 0) ? -1 : atoi(texto_g1);
+    int novo_g2 = (strcmp(texto_g2, "-") == 0) ? -1 : atoi(texto_g2);
+
+    Time* t1 = bdtimes_buscar_id(bd_t, partida_get_id_t1(p));
+    Time* t2 = bdtimes_buscar_id(bd_t, partida_get_id_t2(p));
+    int mostrar_g1 = (novo_g1 >= 0) ? novo_g1 : partida_get_g1(p);
+    int mostrar_g2 = (novo_g2 >= 0) ? novo_g2 : partida_get_g2(p);
+
+    printf("\nConfirma os novos valores para o registro abaixo? (S/N)\n");
+    printf("%-4s %-14s %-14s %-8s %-8s\n", "ID", "Time1", "Time2", "Placar1", "Placar2");
+    printf("%-4d %-14s %-14s %-8d %-8d\n", id, time_nome(t1), time_nome(t2), mostrar_g1, mostrar_g2);
+
+    char confirmacao;
+    scanf(" %c", &confirmacao);
+
+    if (confirmacao == 'S' || confirmacao == 's') {
+        bdpartidas_atualizar(bd_p, id, novo_g1, novo_g2);
+        sincronizar_dados(bd_p, bd_t);
+        printf("Registro atualizado com sucesso.\n");
+    } else {
+        printf("Atualização cancelada.\n");
+    }
+}
+
+// Remove uma partida existente
+void menu_remover_partida(BDPartidas* bd_p, BDTimes* bd_t) {
+    menu_consultar_partidas(bd_p, bd_t);
+
+    int id;
+    printf("\nDigite o ID do registro a ser removido: ");
+    scanf(" %d", &id);
+
+    Partida* p = bdpartidas_buscar_id(bd_p, id);
+    if (p == NULL) {
+        printf("Partida com ID %d não encontrada.\n", id);
+        return;
+    }
+
+    Time* t1 = bdtimes_buscar_id(bd_t, partida_get_id_t1(p));
+    Time* t2 = bdtimes_buscar_id(bd_t, partida_get_id_t2(p));
+
+    printf("\nTem certeza de que deseja excluir o registro abaixo? (S/N)\n");
+    printf("%-4s %-14s %-14s %-8s %-8s\n", "ID", "Time1", "Time2", "Placar1", "Placar2");
+    printf("%-4d %-14s %-14s %-8d %-8d\n", id, time_nome(t1), time_nome(t2), partida_get_g1(p), partida_get_g2(p));
+
+    char confirmacao;
+    scanf(" %c", &confirmacao);
+
+    if (confirmacao == 'S' || confirmacao == 's') {
+        bdpartidas_remover(bd_p, id);
+        sincronizar_dados(bd_p, bd_t);
+        printf("Registro removido com sucesso.\n");
+    } else {
+        printf("Remoção cancelada.\n");
+    }
+}
+
+// Insere uma nova partida
+void menu_inserir_partida(BDPartidas* bd_p, BDTimes* bd_t) {
+    int id_t1, id_t2, g1, g2;
+
+    // Mostra os times e IDs disponíveis antes de pedir a digitação
+    printf("\n--- Times Cadastrados ---\n");
+    bdtimes_listar_ids_nomes(bd_t);
+    printf("-------------------------\n");
+
+    printf("\nPara inserir um novo registro, digite os valores para\n");
+    printf("os campos Time1, Time2, Placar1 e Placar2 (apenas inteiros):\n");
+    scanf(" %d", &id_t1);
+    scanf(" %d", &id_t2);
+    scanf(" %d", &g1);
+    scanf(" %d", &g2);
+
+    Time* t1 = bdtimes_buscar_id(bd_t, id_t1);
+    Time* t2 = bdtimes_buscar_id(bd_t, id_t2);
+
+    if (t1 == NULL || t2 == NULL) {
+        printf("Time1 ou Time2 informado não existe.\n");
+        return;
+    }
+
+    printf("\nConfirma a inserção do registro abaixo? (S/N)\n");
+    printf("%-4s %-14s %-14s %-8s %-8s\n", "ID", "Time1", "Time2", "Placar1", "Placar2");
+    printf("%-4d %-14s %-14s %-8d %-8d\n", bd_p->id, time_nome(t1), time_nome(t2), g1, g2);
+
+    char confirmacao;
+    scanf(" %c", &confirmacao);
+
+    if (confirmacao == 'S' || confirmacao == 's') {
+        bdpartidas_inserir(bd_p, id_t1, id_t2, g1, g2);
+        sincronizar_dados(bd_p, bd_t);
+        printf("O registro foi inserido com sucesso.\n");
+    } else {
+        printf("Inserção cancelada.\n");
+    }
+}
+
 int main() {
     // Carregando times
     BDTimes* bd_t = bdtimes_criar();
@@ -68,9 +193,9 @@ int main() {
         printf("\n=== Sistema de Gerenciamento de Partidas ===\n");
         printf("1 - Consultar time\n");
         printf("2 - Consultar partidas\n");
-        printf("3 - Atualizar partida (desabilitado)\n");
-        printf("4 - Remover partida (desabilitado)\n");
-        printf("5 - Inserir partida (desabilitado)\n");
+        printf("3 - Atualizar partida\n");
+        printf("4 - Remover partida\n");
+        printf("5 - Inserir partida\n");
         printf("6 - Imprimir tabela de classificação\n");
         printf("Q - Sair\n");
         printf("Opção: ");
@@ -81,9 +206,16 @@ int main() {
             menu_consultar_time(bd_t);
         } else if (opcao == '2') {
             menu_consultar_partidas(bd_p, bd_t);
+        } else if (opcao == '3') {
+            menu_atualizar_partida(bd_p, bd_t);
+        } else if (opcao == '4') {
+            menu_remover_partida(bd_p, bd_t);
+        } else if (opcao == '5') {
+            menu_inserir_partida(bd_p, bd_t);
         } else if (opcao == '6') {
             printf("\nImprimindo classificação...\n");
             bdtimes_imprimir_tabela(bd_t);
+            bdtimes_salvar_classificacao_csv(bd_t, "bd_classificacao.csv");
         } else if (opcao != 'Q' && opcao != 'q') {
             printf("Opção inválida ou desabilitada.\n");
         }

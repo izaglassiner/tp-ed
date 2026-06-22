@@ -5,7 +5,7 @@ CC = gcc
 CFLAGS = -Wall
 
 # Arquivos fonte
-SRCS = main.c time.c bdtimes.c partida.c bdpartidas.c
+SRCS = main.c time.c bdtimes.c partida.c bdpartidas.c texto.c
 
 # Arquivos objeto (troca .c por .o)
 OBJS = $(SRCS:.c=.o)

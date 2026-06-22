@@ -4,24 +4,25 @@
 #ifndef BDTIMES_H
 #define BDTIMES_H
 
-#define COLS 10
-
 // Definindo a estrutura de dados times
-typedef struct{
-    Time* times[10];
-    int quantidade;
-} BDTimes;
+typedef struct TimeNode{
+    Time* time;
+    struct TimeNode* next;
+} TimeNode;
 
-// Funções para a manipulação da esturura de dados BDTimes
-int count_special(const char* str);
+typedef struct{
+    TimeNode* front;
+    TimeNode* rear;
+    int quant;
+} BDTimes;
 
 // Função para criar um BD Time
 BDTimes* bdtimes_criar();
 
-// Função para remover um BD Time
+// Desaloca memória da estrutura de dados BD Time
 void bdtimes_free(BDTimes* bd_t);
 
-// Função para leitura de um arquivo bd_time.csv
+// Carrega banco de dados a partir de um arquivo csv apontado por um caminho
 int bdtimes_carregar_csv(BDTimes* bd_t, char* caminho);
 
 // Função para buscar o time referente a um ID
@@ -32,5 +33,14 @@ void bdtimes_imprimir_tabela(BDTimes *bd_t);
 
 // Função para buscar time por prefixo
 void bdtimes_buscar_prefixo(BDTimes* bd_t, char* prefixo);
+
+// Função para resetar os dados de todos os times
+void bdtimes_resetar_todos(BDTimes* bd_t);
+
+// Função para salvar os dados da classificação em um arquivo csv apontado por um caminho
+int bdtimes_salvar_classificacao_csv(BDTimes* bd_t, char* caminho);
+
+// Função para listar apenas os IDs e Nomes de todos os times cadastrados
+void bdtimes_listar_ids_nomes(BDTimes* bd_t);
 
 #endif

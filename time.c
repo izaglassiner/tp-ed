@@ -111,3 +111,15 @@ void time_registrar_resultado(Time* t, int gols_feitos, int gols_tomados) {
         t->derrotas++;
     }
 }
+
+// Função para resetar estatísticas de uma time
+void time_resetar_estatisticas(Time *t){
+    if (t == NULL){
+        return;
+    }
+    t->vitorias = 0;
+    t->empates = 0;
+    t->derrotas = 0;
+    t->gols_marcados = 0;
+    t->gols_sofridos = 0;
+}

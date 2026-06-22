@@ -57,3 +57,17 @@ int partida_get_g2(Partida* p)
 {
     return p->gols_time2;
 }
+
+// Função para atualizar atualizar o número de gols em uma partida (g1)
+void partida_set_g1(Partida* p, int gols){
+    if (p != NULL){
+        p->gols_time1 = gols;
+    }
+}
+
+// Função para atualizar o número de gols em uma partida (g2)
+void partida_set_g2(Partida* p, int gols){
+    if (p != NULL){
+        p->gols_time2 = gols;
+    }
+}

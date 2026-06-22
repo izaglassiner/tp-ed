@@ -1,6 +1,6 @@
-# Campeonato Computacional de Futebol — Parte I
+# Campeonato Computacional de Futebol — Parte II
 
-Sistema de gerenciamento de partidas e resultados de um campeonato de futebol, implementado em linguagem C. Os dados são persistidos em arquivos CSV e carregados em memória para consulta durante a execução.
+Sistema de gerenciamento de partidas e resultados de um campeonato de futebol, implementado em linguagem C. Os dados são persistidos em arquivos CSV e carregados em uma lista simplesmente encadeada em memória, permitindo consulta, inserção, atualização e remoção de partidas, além da impressão da tabela de classificação ordenada por mérito esportivo.
 
 ---
 
@@ -8,7 +8,8 @@ Sistema de gerenciamento de partidas e resultados de um campeonato de futebol, i
 
 ```
 ├── times.csv              # Base de dados dos times cadastrados
-├── bd_partidas.csv        # Base de dados das partidas (substituir conforme o cenário)
+├── bd_partidas.csv        # Base de dados das partidas (regravado pelo programa)
+├── bd_classificacao.csv   # Gerado pelo programa: tabela de classificação ordenada
 ├── partidas_vazio.csv     # Cenário 1: campeonato sem partidas disputadas
 ├── partidas_parcial.csv   # Cenário 2: campeonato em andamento
 ├── partidas_completo.csv  # Cenário 3: campeonato finalizado
@@ -17,7 +18,8 @@ Sistema de gerenciamento de partidas e resultados de um campeonato de futebol, i
 ├── time.c / time.h        # TAD Time
 ├── bdtimes.c / bdtimes.h  # TAD BDTimes
 ├── partida.c / partida.h  # TAD Partida
-└── bdpartidas.c / bdpartidas.h  # TAD BDPartidas
+├── bdpartidas.c / bdpartidas.h  # TAD BDPartidas
+└── texto.c / texto.h      # Funções utilitárias de processamento de texto
 ```
 
 ---
@@ -45,6 +47,8 @@ cp partidas_parcial.csv bd_partidas.csv
 cp partidas_completo.csv bd_partidas.csv
 ```
 
+> Atenção: ao inserir, atualizar ou remover uma partida pelo menu, o sistema regrava `bd_partidas.csv` automaticamente. Para testar outro cenário do zero, copie o arquivo novamente antes de executar.
+
 ### 2. Compilar e executar
 
 ```bash
@@ -65,9 +69,9 @@ Ao iniciar, o sistema exibe o menu principal:
 === Sistema de Gerenciamento de Partidas ===
 1 - Consultar time
 2 - Consultar partidas
-3 - Atualizar partida (desabilitado)
-4 - Remover partida (desabilitado)
-5 - Inserir partida (desabilitado)
+3 - Atualizar partida
+4 - Remover partida
+5 - Inserir partida
 6 - Imprimir tabela de classificação
 Q - Sair
 ```
@@ -76,13 +80,19 @@ Q - Sair
 
 **Opção 2 — Consultar partidas:** escolha o modo de busca (mandante, visitante ou ambos) e informe o prefixo do nome do time.
 
-**Opção 6 — Imprimir tabela:** exibe todos os times com suas estatísticas acumuladas
+**Opção 3 — Atualizar partida:** reaproveita a consulta de partidas (opção 2) para localizar o registro. Em seguida, informe o ID da partida e o novo placar de cada time — digite `-` em um campo para manter o valor atual. Confirme com `S` para aplicar a alteração.
+
+**Opção 4 — Remover partida:** também reaproveita a consulta de partidas para localizar o ID a ser excluído, pedindo confirmação antes de remover.
+
+**Opção 5 — Inserir partida:** informe os IDs dos dois times e o placar de cada um. O ID da nova partida é gerado automaticamente.
+
+**Opção 6 — Imprimir tabela:** exibe todos os times ordenados por mérito esportivo (Pontos Ganhos desc, Vitórias desc, Saldo de Gols desc) e salva o mesmo resultado em `bd_classificacao.csv`:
 - Vitórias (V)
 - Empates (E)
 - Derrotas (D)
 - Gols marcados (GM)
 - Gols sofridos (GS)
-- Saldo de Gols (GM - GS)
+- Saldo de Gols (S)
 - Pontos ganhos (PG)
 
 **Q — Sair:** encerra o programa e libera a memória alocada.
@@ -101,7 +111,10 @@ make clean
 Contém os 10 times do campeonato no formato `ID,Time`. Deve estar no mesmo diretório do executável.
 
 **`bd_partidas.csv`**
-Arquivo de partidas ativo, lido pelo programa ao iniciar. Para trocar de cenário, copie o arquivo desejado com esse nome (veja as instruções de execução).
+Arquivo de partidas ativo, lido pelo programa ao iniciar. Sempre que uma partida é inserida, atualizada ou removida pelo menu, o arquivo é regravado automaticamente para refletir o estado em memória.
+
+**`bd_classificacao.csv`**
+Gerado automaticamente pela opção 6 do menu, contém a tabela de classificação já ordenada por mérito esportivo.
 
 **`Makefile`**
 - `make` — compila e executa o programa
@@ -109,19 +122,22 @@ Arquivo de partidas ativo, lido pelo programa ao iniciar. Para trocar de cenári
 - `make clean` — remove arquivos objeto e executável
 
 **`main.c`**
-Carrega os dois CSVs em memória, processa os resultados das partidas e exibe o menu interativo ao usuário.
+Carrega os dois CSVs em memória, processa os resultados das partidas e exibe o menu interativo ao usuário, incluindo as funcionalidades de manutenção de dados (atualizar, remover e inserir partida).
 
 **`time.c / time.h`**
 Implementam o TAD `Time`, que representa uma equipe com seus dados de identificação e estatísticas acumuladas de desempenho.
 
 **`bdtimes.c / bdtimes.h`**
-Implementam o TAD `BDTimes`, que gerencia a coleção de times: carregamento do CSV, busca por ID, busca por prefixo de nome e impressão da tabela de classificação.
+Implementam o TAD `BDTimes`, que gerencia a coleção de times em uma lista simplesmente encadeada: carregamento do CSV, busca por ID, busca por prefixo de nome, reset das estatísticas e impressão/exportação da tabela de classificação ordenada.
 
 **`partida.c / partida.h`**
 Implementam o TAD `Partida`, que representa um jogo entre dois times com seus respectivos placares.
 
 **`bdpartidas.c / bdpartidas.h`**
-Implementam o TAD `BDPartidas`, que gerencia a coleção de partidas: carregamento do CSV, listagem por time e processamento de resultados para atualizar as estatísticas dos times.
+Implementam o TAD `BDPartidas`, que gerencia a coleção de partidas em uma lista simplesmente encadeada: carregamento e gravação do CSV, busca por ID, inserção/atualização/remoção de registros, listagem por time e processamento de resultados para atualizar as estatísticas dos times.
+
+**`texto.c / texto.h`**
+Função utilitária (`count_special`) que conta os bytes de continuação UTF-8 em uma string, usada para corrigir o alinhamento de colunas no `printf` quando o nome de um time tem acento.
 
 ---
 
@@ -145,10 +161,11 @@ Oferece funções para obter dados derivados calculados sob demanda:
 - `time_pontos()` — calculado como 3 × vitórias + empates
 - `time_partidas()` — soma de vitórias, empates e derrotas
 - `time_registrar_resultado()` — atualiza as estatísticas a partir do placar de uma partida
+- `time_resetar_estatisticas()` — zera as estatísticas acumuladas, usado antes de recalcular a tabela do zero
 
 ### 2. BDTimes
 
-Definido em `bdtimes.h`, gerencia um vetor estático de até 10 ponteiros para `Time`. Principais operações:
+Definido em `bdtimes.h`, gerencia uma lista simplesmente encadeada de `Time`, com ponteiros para o primeiro (`front`) e o último (`rear`) nó da lista — isso evita percorrer a lista inteira a cada inserção. Principais operações:
 
 - `bdtimes_carregar_csv()` — lê `times.csv` e cria os times em memória
 
@@ -156,7 +173,11 @@ Definido em `bdtimes.h`, gerencia um vetor estático de até 10 ponteiros para `
 
 - `bdtimes_buscar_prefixo()` — busca times cujo nome começa com o prefixo informado e imprime suas estatísticas
 
-- `bdtimes_imprimir_tabela()` — exibe a tabela de classificação completa ordenada por ID
+- `bdtimes_resetar_todos()` — zera as estatísticas de todos os times, usado antes de reprocessar as partidas
+
+- `bdtimes_imprimir_tabela()` — exibe a tabela de classificação ordenada por mérito esportivo (PG desc, V desc, S desc)
+
+- `bdtimes_salvar_classificacao_csv()` — salva essa mesma tabela ordenada em `bd_classificacao.csv`
 
 ### 3. Partida
 
@@ -168,13 +189,20 @@ Definido em `partida.h`, representa um jogo com os campos:
 
 - `gols_time1`, `gols_time2` (int): gols de cada time
 
+Além dos getters, oferece:
+- `partida_set_g1()` / `partida_set_g2()` — atualizam o placar de uma partida já existente, usados pela funcionalidade de atualização
+
 ### 4. BDPartidas
 
-Definido em `bdpartidas.h`, gerencia um vetor estático de até 200 ponteiros para `Partida`. Principais operações:
+Definido em `bdpartidas.h`, gerencia uma lista simplesmente encadeada de `Partida`, também com ponteiros `front`/`rear`. Mantém ainda um contador interno (`id`) usado para gerar o ID da próxima partida inserida — esse contador não pode ser simplesmente o tamanho da lista, pois uma remoção diminuiria esse valor e poderia gerar um ID já usado por outro registro. Principais operações:
 
-- `bdpartidas_carregar_csv()` — lê `bd_partidas.csv` e cria as partidas em memória
+- `bdpartidas_carregar_csv()` / `bdpartidas_salvar_csv()` — leitura e gravação do arquivo de partidas
 
-- `bdpartidas_processar_resultados()` — percorre todas as partidas e chama `time_registrar_resultado()` para cada time, acumulando as estatísticas
+- `bdpartidas_buscar_id()` — localiza uma partida pelo ID
+
+- `bdpartidas_inserir()` / `bdpartidas_atualizar()` / `bdpartidas_remover()` — operações de manutenção dos dados
+
+- `bdpartidas_processar_resultados()` — percorre todas as partidas e chama `time_registrar_resultado()` para cada time, recalculando as estatísticas
 
 - `bdpartidas_listar_por_time()` — lista partidas filtrando por mandante, visitante ou ambos, com busca por prefixo de nome
 
@@ -182,9 +210,17 @@ Definido em `bdpartidas.h`, gerencia um vetor estático de até 200 ponteiros pa
 
 ## Principais Decisões de Implementação
 
-- **Vetor estático com alocação dinâmica dos elementos:** o vetor de ponteiros é estático (tamanho fixo definido em tempo de compilação), mas cada `Time` e cada `Partida` é alocado individualmente com `malloc`. Isso combina a previsibilidade de memória do vetor estático com a flexibilidade do acesso via ponteiro, conforme sugerido pelo enunciado.
+- **Lista simplesmente encadeada com ponteiros `front`/`rear`:** tanto `BDTimes` quanto `BDPartidas` usam uma lista encadeada (em vez do vetor estático da Parte I), permitindo inserir e remover partidas sem um limite fixo de tamanho. Guardar o ponteiro para o último nó (`rear`) evita percorrer a lista inteira a cada inserção.
 
-- **Separação entre leitura e processamento:** o carregamento dos CSVs (`bdtimes_carregar_csv` e `bdpartidas_carregar_csv`) apenas popula as estruturas com os dados brutos. O cálculo das estatísticas é feito em uma etapa separada (`bdpartidas_processar_resultados`), chamada uma única vez no início. Isso torna cada função com uma responsabilidade clara.
+- **Recalcular as estatísticas do zero a cada alteração:** em vez de ajustar V/E/D/GM/GS incrementalmente a cada inserção, atualização ou remoção, o sistema sempre chama `bdtimes_resetar_todos()` seguido de `bdpartidas_processar_resultados()`. Como o campeonato tem só 10 times e poucas dezenas de partidas, recalcular tudo é rápido e muito mais simples de manter correto.
+
+- **Contador de próximo ID independente do tamanho da lista:** o `BDPartidas` guarda um contador que só cresce, nunca reaproveitando IDs de partidas removidas, evitando colisões de ID após uma remoção.
+
+- **Ordenação por cópia em vetor:** para a tabela de classificação, os times são copiados da lista encadeada para um vetor temporário de ponteiros e ordenados com bubble sort (suficiente para 10 elementos), comparando Pontos Ganhos, Vitórias e Saldo de Gols, nessa ordem de prioridade. A lista original não é alterada, só o vetor temporário.
+
+- **Persistência após cada operação:** toda inserção, atualização ou remoção de partida regrava `bd_partidas.csv` imediatamente, e a opção de imprimir a tabela também gera `bd_classificacao.csv` — assim os arquivos em disco nunca ficam desatualizados em relação ao estado em memória.
+
+- **Módulo separado para funções de texto:** a contagem de caracteres especiais (usada para alinhar corretamente colunas com nomes acentuados, já que cada acento ocupa 2 bytes em UTF-8 mas só 1 espaço visível) foi isolada em `texto.c`/`texto.h`, por ser uma função genérica de processamento de string, sem relação direta com times ou partidas.
 
 - **Dados derivados calculados sob demanda:** saldo de gols e pontos ganhos não são armazenados na struct — são calculados pelas funções `time_saldo_gols()` e `time_pontos()` no momento em que são necessários. Isso evita inconsistências caso os dados base sejam alterados no futuro.
 

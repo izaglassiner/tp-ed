@@ -34,4 +34,10 @@ int partida_get_g1(Partida* p);
 // Função que retorna o número de gols do segundo time participante de uma partida
 int partida_get_g2(Partida* p);
 
+// Função para atualizar atualizar o número de gols em uma partida (g1)
+void partida_set_g1(Partida* p, int gols);
+
+// Função para atualizar o número de gols em uma partida (g2)
+void partida_set_g2(Partida* p, int gols);
+
 #endif
