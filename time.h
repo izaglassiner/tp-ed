@@ -2,16 +2,8 @@
 #ifndef TIME_H
 #define TIME_H
 
-// Definindo a estrutura de dados Time
-typedef struct{
-    int id;            // ID do time
-    char nome[50];     // Nome do time
-    int vitorias;      // Número de vitórias do time
-    int empates;       // Número de empates do time
-    int derrotas;      // Número de derrotas do time
-    int gols_marcados; // Número de gols marcados do time
-    int gols_sofridos; // Número de gols sofridos do time
-} Time;
+// Define a estrutura de dados Time
+typedef struct time Time;
 
 // Funções para manipulação da estrutura de dados Time:
 

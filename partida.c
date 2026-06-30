@@ -4,6 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Definindo a estrutura de dados partida
+struct partida{
+    int id;        
+    int id_time1;
+    int id_time2;
+    int gols_time1;
+    int gols_time2;
+};
+
 // Função para criar uma partida
 Partida* partida_criar(int id, int id_t1, int id_t2, int g1, int g2)
 {

@@ -4,6 +4,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Definindo a estrutura de dados Time
+struct time{
+    int id;
+    char nome[50];
+    int vitorias;
+    int empates;
+    int derrotas;
+    int gols_marcados;
+    int gols_sofridos;
+};
+
 // Função para criar um time
 Time* time_criar(int id, char* nome)
 {

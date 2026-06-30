@@ -3,13 +3,7 @@
 #define PARTIDA_H
 
 // Definindo a estrutura de dados partida
-typedef struct{
-    int id;        // ID da partida
-    int id_time1;  // ID do primeiro time participante
-    int id_time2;  // ID do segundo time participante
-    int gols_time1; // Quantidade de gols marcada pelo primeiro time
-    int gols_time2; // Quantidade de gols marcada pelo segundo time
-} Partida;
+typedef struct partida Partida;
 
 // Funções para a manipulação da esturura de dados partida:
 

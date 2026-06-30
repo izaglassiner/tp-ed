@@ -165,7 +165,7 @@ Oferece funções para obter dados derivados calculados sob demanda:
 
 ### 2. BDTimes
 
-Definido em `bdtimes.h`, gerencia uma lista simplesmente encadeada de `Time`, com ponteiros para o primeiro (`front`) e o último (`rear`) nó da lista — isso evita percorrer a lista inteira a cada inserção. Principais operações:
+Definido em `bdtimes.h`, gerencia uma lista simplesmente encadeada de `Time`, com ponteiro para o primeiro (`first`) nó da lista. Principais operações:
 
 - `bdtimes_carregar_csv()` — lê `times.csv` e cria os times em memória
 
@@ -194,7 +194,7 @@ Além dos getters, oferece:
 
 ### 4. BDPartidas
 
-Definido em `bdpartidas.h`, gerencia uma lista simplesmente encadeada de `Partida`, também com ponteiros `front`/`rear`. Mantém ainda um contador interno (`id`) usado para gerar o ID da próxima partida inserida — esse contador não pode ser simplesmente o tamanho da lista, pois uma remoção diminuiria esse valor e poderia gerar um ID já usado por outro registro. Principais operações:
+Definido em `bdpartidas.h`, gerencia uma lista simplesmente encadeada de `Partida`, também com ponteiro `first`. Mantém ainda um contador interno (`id`) usado para gerar o ID da próxima partida inserida — esse contador não pode ser simplesmente o tamanho da lista, pois uma remoção diminuiria esse valor e poderia gerar um ID já usado por outro registro. Principais operações:
 
 - `bdpartidas_carregar_csv()` / `bdpartidas_salvar_csv()` — leitura e gravação do arquivo de partidas
 
@@ -210,7 +210,7 @@ Definido em `bdpartidas.h`, gerencia uma lista simplesmente encadeada de `Partid
 
 ## Principais Decisões de Implementação
 
-- **Lista simplesmente encadeada com ponteiros `front`/`rear`:** tanto `BDTimes` quanto `BDPartidas` usam uma lista encadeada (em vez do vetor estático da Parte I), permitindo inserir e remover partidas sem um limite fixo de tamanho. Guardar o ponteiro para o último nó (`rear`) evita percorrer a lista inteira a cada inserção.
+- **Lista simplesmente encadeada: ** tanto `BDTimes` quanto `BDPartidas` usam uma lista encadeada (em vez do vetor estático da Parte I), permitindo inserir e remover partidas sem um limite fixo de tamanho.
 
 - **Recalcular as estatísticas do zero a cada alteração:** em vez de ajustar V/E/D/GM/GS incrementalmente a cada inserção, atualização ou remoção, o sistema sempre chama `bdtimes_resetar_todos()` seguido de `bdpartidas_processar_resultados()`. Como o campeonato tem só 10 times e poucas dezenas de partidas, recalcular tudo é rápido e muito mais simples de manter correto.
 

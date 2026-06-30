@@ -6,7 +6,19 @@
 #include <string.h>
 #include <strings.h>
 
-// Função para criar uma estrutura BDTime vazia
+// Define a estrutura do nó em BDtimes
+struct time_node{
+    Time* time;
+    TimeNode* next;
+};
+
+// Define a estrutura de BDtimes
+struct times{
+    TimeNode* first;
+    int quant;
+};
+
+// Função para criar uma estrutura BDTime vazia alocando a memoria necessaria
 BDTimes* bdtimes_criar()
 {
     BDTimes* bd_t = (BDTimes*)malloc(sizeof(BDTimes));
@@ -14,8 +26,7 @@ BDTimes* bdtimes_criar()
         printf("Erro ao alocar memória para BDTimes.\n");
         return NULL;
     }
-    bd_t->front = NULL;
-    bd_t->rear = NULL;
+    bd_t->first = NULL;
     bd_t->quant = 0;
     return bd_t;
 }
@@ -27,7 +38,7 @@ void bdtimes_free(BDTimes* bd_t)
         return;
     }
     
-    TimeNode* t = bd_t->front;
+    TimeNode* t = bd_t->first;
     while (t != NULL){
         TimeNode* aux = t->next;
         time_free(t->time);
@@ -37,19 +48,13 @@ void bdtimes_free(BDTimes* bd_t)
     free(bd_t);
 }
 
-// Função para inserir time ao final da fila lista
+// Insere time ao inicio da lista
 // Função interna, não listada na interface
 void bdtimes_inserir_node(BDTimes* bd_t, Time* t){
-    TimeNode* novo_time = (TimeNode*) malloc(sizeof(TimeNode));
+    TimeNode* novo_time = (TimeNode*)malloc(sizeof(TimeNode));
     novo_time->time = t;
-    novo_time->next = NULL;
-
-    if (bd_t->rear == NULL){
-        bd_t->front = novo_time;
-    } else {
-        bd_t->rear->next = novo_time;
-    }
-    bd_t->rear = novo_time;
+    novo_time->next = bd_t->first;
+    bd_t->first = novo_time;
     bd_t->quant++;
 }
 
@@ -93,9 +98,9 @@ Time* bdtimes_buscar_id(BDTimes *bd_t, int id)
     if (bd_t == NULL){
         return NULL;
     }
-    TimeNode* t = bd_t->front;
+    TimeNode* t = bd_t->first;
     while (t != NULL){
-        if (t->time->id == id){
+        if (time_id(t->time) == id){
             return t->time;
         }
         t = t->next;
@@ -108,7 +113,7 @@ void bdtimes_resetar_todos(BDTimes* bd_t){
     if (bd_t == NULL){
         return;
     }
-    TimeNode* t = bd_t->front;
+    TimeNode* t = bd_t->first;
     while (t != NULL){
         time_resetar_estatisticas(t->time);
         t = t->next;
@@ -118,7 +123,7 @@ void bdtimes_resetar_todos(BDTimes* bd_t){
 // Função para ordenar os times de acordo com os critérios de classificação
 void bdtimes_ordenar(BDTimes* bd_t, Time** vetor, int* n) {
     int i = 0;
-    TimeNode* t = bd_t->front;
+    TimeNode* t = bd_t->first;
     while (t != NULL) {
         vetor[i] = t->time;
         i++;
@@ -131,9 +136,9 @@ void bdtimes_ordenar(BDTimes* bd_t, Time** vetor, int* n) {
             Time* x = vetor[b];
             Time* y = vetor[b + 1];
  
-            // x deve vir depois de y se tiver menos pontos, ou em caso
-            // de empate, menos vitórias, ou em caso de empate, menos
-            // saldo de gols
+            // x deve vir depois de y se tiver menos pontos
+            // em caso de empate, menos vitórias
+            // se ainda der empate, menos saldo de gols
             int pontos_iguais = time_pontos(x) == time_pontos(y);
             int vitorias_iguais = time_vitorias(x) == time_vitorias(y);
  
@@ -155,7 +160,7 @@ void bdtimes_imprimir_tabela(BDTimes *bd_t){
         return;
     }
  
-    Time** ordenado = (Time**) malloc(bd_t->quant * sizeof(Time*));
+    Time** ordenado = (Time**)malloc(bd_t->quant * sizeof(Time*));
     int n;
     bdtimes_ordenar(bd_t, ordenado, &n);
  
@@ -184,12 +189,12 @@ void bdtimes_buscar_prefixo(BDTimes* bd_t, char* prefixo) {
     int tam = strlen(prefixo);
     int encontrou = 0;
  
-    TimeNode* t = bd_t->front;
+    TimeNode* t = bd_t->first;
     while (t != NULL) {
         Time* time = t->time;
         if (strncasecmp(time_nome(time), prefixo, tam) == 0) {
             if (!encontrou) {
-                printf("\n%-4s %-14s %5s %2s %2s %3s %3s %4s %3s\n",
+                printf("%-4s %-14s %5s %2s %2s %3s %3s %4s %3s\n",
                        "ID", "Time", "V", "E", "D", "GM", "GS", "S", "PG");
                 encontrou = 1;
             }
@@ -242,12 +247,12 @@ int bdtimes_salvar_classificacao_csv(BDTimes* bd_t, char* caminho) {
 
 // Função para listar apenas os IDs e Nomes de todos os times cadastrados
 void bdtimes_listar_ids_nomes(BDTimes* bd_t) {
-    if (bd_t == NULL || bd_t->front == NULL) {
+    if (bd_t == NULL || bd_t->first == NULL) {
         printf("Nenhum time cadastrado.\n");
         return;
     }
 
-    TimeNode* t = bd_t->front;
+    TimeNode* t = bd_t->first;
     printf("ID     Time\n");
     while (t != NULL) {
         printf("%d      %s\n", time_id(t->time), time_nome(t->time));

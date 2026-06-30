@@ -3,20 +3,13 @@
 
 #ifndef BDTIMES_H
 #define BDTIMES_H
+#define COLS 10
 
-// Definindo a estrutura de dados times
-typedef struct TimeNode{
-    Time* time;
-    struct TimeNode* next;
-} TimeNode;
+// Estruturas de dados times e time_node
+typedef struct time_node TimeNode;
+typedef struct times BDTimes;
 
-typedef struct{
-    TimeNode* front;
-    TimeNode* rear;
-    int quant;
-} BDTimes;
-
-// Função para criar um BD Time
+// Função para criar um BD Time (alocando a memoria necessaria)
 BDTimes* bdtimes_criar();
 
 // Desaloca memória da estrutura de dados BD Time
