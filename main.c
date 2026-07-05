@@ -25,8 +25,7 @@ int menu_consultar_partidas(BDPartidas* bd_p, BDTimes* bd_t) {
     printf("\nEscolha o modo de consulta:\n");
     printf("1 - Por time mandante\n");
     printf("2 - Por time visitante\n");
-    printf("3 - Por time mandante ou visitante
-        \n"); 
+    printf("3 - Por time mandante ou visitante\n"); 
     printf("4 - Retornar ao menu principal\n");
     printf("Opção: ");
     scanf(" %d", &modo);
@@ -205,7 +204,7 @@ int main() {
     // Carregando partidas
     BDPartidas* bd_p = bdpartidas_criar();
     if (bdpartidas_carregar_csv(bd_p, "bd_partidas.csv") == 0) {
-        printf("Erro ao carregar bd_partidas.csv\n");
+        printf("Erro ao carregar bd_partidas.csv.\n");
 
         // Liberando memoria alocada
         bdpartidas_free(bd_p);
